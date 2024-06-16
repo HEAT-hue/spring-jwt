@@ -3,6 +3,7 @@ package com.jwt.demo.auth;
 import com.jwt.demo.config.JwtUtil;
 import com.jwt.demo.entity.Role;
 import com.jwt.demo.entity.User;
+import com.jwt.demo.exception.UserAlreadyExistsException;
 import com.jwt.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +22,14 @@ public class AuthenticationService {
 
     // Save User in the DB
     public AuthResponseDTO register(RegisterRequestDTO registerRequestDTO) {
+        // Check if user exists
+        boolean userExists = userRepository.findByEmail(registerRequestDTO.getEmail()).isPresent();
+        if (userExists) {
+            System.out.println("User exists");
+            System.out.println("Throw new exception");
+            throw new UserAlreadyExistsException("User " + registerRequestDTO.getEmail() + " already exists");
+        }
+
         // Build user
         User user = new User();
         user.setFirstName(registerRequestDTO.getFirstName());
@@ -28,13 +37,15 @@ public class AuthenticationService {
         user.setEmail(registerRequestDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole(Role.ADMIN);
-        try {
-            // TODO: Check if user has been created
-            userRepository.save(user);
-        } catch (Exception exception) {
+
+        User userSaved = userRepository.save(user);
+
+        // Check if user is saved
+        if (userSaved.getId() < 0 && null == userSaved) {
             // TODO: Create your exception class
-            throw new RuntimeException(exception.getMessage());
+            throw new RuntimeException("Unable to save User");
         }
+
         String jwtToken = jwtUtil.generateToken(user);
         return new AuthResponseDTO(jwtToken);
     }
@@ -42,11 +53,7 @@ public class AuthenticationService {
     public AuthResponseDTO authenticate(AuthRequestDTO authRequestDTO) {
 
         // Authenticate user
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequestDTO.getEmail(),
-                        authRequestDTO.getPassword())
-        );
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getEmail(), authRequestDTO.getPassword()));
 
         // Fetch user
         User user = userRepository.findByEmail(authRequestDTO.getEmail()).orElseThrow();

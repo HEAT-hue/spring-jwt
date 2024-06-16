@@ -1,0 +1,34 @@
+server:
+  port: 8085
+
+spring:
+  # Enable automatic restart
+  devtools:
+    restart:
+      enabled: true
+
+  # DATABASE connection
+  datasource:
+    url: jdbc:mysql://localhost:3306/jwtSecurity
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    # Show sql queries made by spring data jpa
+    show-sql: false
+    properties:
+      # Disable validation of entities before being persisted to the DB
+      javax:
+        persistence:
+          validation:
+            mode: none
+      hibernate:
+        format_sql: true
+        # Create and drop schema upon start and stop of application
+        ddl-auto: create-drop
+
+  # Show logs in colored mode
+  output:
+    ansi:
+      enabled: ALWAYS

@@ -25,13 +25,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll()
-                                .requestMatchers("/api/v1/res/**").hasRole(Role.ADMIN.name())
-                                .requestMatchers("/api/v1/pub/**").hasRole(Role.USER.name())
+                                .requestMatchers("/api/v1/admin/**").hasAuthority(Role.ADMIN.name())
+                                .requestMatchers("/api/v1/user/**").hasAuthority(Role.USER.name())
                                 .anyRequest().authenticated()
                 )
+
                 // Don't store session
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

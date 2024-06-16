@@ -25,8 +25,6 @@ public class AuthenticationService {
         // Check if user exists
         boolean userExists = userRepository.findByEmail(registerRequestDTO.getEmail()).isPresent();
         if (userExists) {
-            System.out.println("User exists");
-            System.out.println("Throw new exception");
             throw new UserAlreadyExistsException("User " + registerRequestDTO.getEmail() + " already exists");
         }
 
@@ -37,12 +35,10 @@ public class AuthenticationService {
         user.setEmail(registerRequestDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole(Role.ADMIN);
-
         User userSaved = userRepository.save(user);
 
         // Check if user is saved
         if (userSaved.getId() < 0 && null == userSaved) {
-            // TODO: Create your exception class
             throw new RuntimeException("Unable to save User");
         }
 

@@ -32,7 +32,7 @@ public class User implements UserDetails {
     private String password;
 
     // Map value to Role Enum
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;
 

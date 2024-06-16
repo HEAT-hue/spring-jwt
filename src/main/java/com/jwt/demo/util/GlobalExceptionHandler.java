@@ -1,7 +1,9 @@
 package com.jwt.demo.util;
 
+import com.jwt.demo.exception.JwtTokenException;
 import com.jwt.demo.exception.NotFoundException;
 import com.jwt.demo.exception.UserAlreadyExistsException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.rmi.AccessException;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -59,16 +63,21 @@ public class GlobalExceptionHandler {
             AccountExpiredException.class,
             LockedException.class,
             DisabledException.class,
-            CredentialsExpiredException.class})
-    @ResponseStatus(BAD_REQUEST)
+            CredentialsExpiredException.class,
+            ExpiredJwtException.class,
+            JwtTokenException.class,
+            AccessException.class
+    })
+    @ResponseStatus(UNAUTHORIZED)
     public @ResponseBody HttpErrorInfo handleAuthException(HttpServletRequest request, Exception ex) {
-        return createHttpErrorInfo(BAD_REQUEST, request, ex);
+        return createHttpErrorInfo(UNAUTHORIZED, request, ex);
     }
+
 
     private HttpErrorInfo createHttpErrorInfo(HttpStatus httpStatus, HttpServletRequest request, Exception ex) {
         final String path = request.getRequestURI();
         final String message = ex.getMessage();
-        log.debug("Returning HTTP status: {} for path: {}, message: {}", httpStatus, path, message);
+        log.error("Returning HTTP status: {} for path: {}, message: {}", httpStatus, path, message);
         return new HttpErrorInfo(httpStatus, path, message);
     }
 }

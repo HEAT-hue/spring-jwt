@@ -2,6 +2,7 @@ package com.jwt.demo.util;
 
 import com.jwt.demo.exception.JwtTokenException;
 import com.jwt.demo.exception.NotFoundException;
+import com.jwt.demo.exception.ResourceNotFoundException;
 import com.jwt.demo.exception.UserAlreadyExistsException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     public @ResponseBody HttpErrorInfo handleAllExceptions(HttpServletRequest request, Exception ex) {
         return createHttpErrorInfo(INTERNAL_SERVER_ERROR, request, ex);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public @ResponseBody HttpErrorInfo handleResourceNotFoundExceptions(HttpServletRequest request, Exception ex) {
+        return createHttpErrorInfo(NOT_FOUND, request, ex);
     }
 
     // Authentication exception
